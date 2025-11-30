@@ -154,9 +154,11 @@ def example_protein_flop():
     print()
     
     # Generate protein conformations
+    # Use fewer samples for faster computation
+    n_samples = 300  # Reduced from 1000 for faster computation
     print("Generating folded state (before Flop analogy)...")
     folded_coords = protein_flop_analogy_folded(
-        n_samples=1000,
+        n_samples=n_samples,
         n_residues=6,
         noise_level=0.1
     )
@@ -166,7 +168,7 @@ def example_protein_flop():
     
     print("Generating unfolded state (after Flop analogy)...")
     unfolded_coords = protein_flop_analogy_unfolded(
-        n_samples=1000,
+        n_samples=n_samples,
         n_residues=6,
         noise_level=0.15
     )
@@ -187,6 +189,7 @@ def example_protein_flop():
     
     # Compute RMSD matrices
     print("Computing RMSD distance matrices...")
+    print("  (This may take a moment...)")
     rmsd_folded = compute_rmsd_matrix(folded_coords)
     rmsd_unfolded = compute_rmsd_matrix(unfolded_coords)
     print(f"  RMSD matrix shape: {rmsd_folded.shape}")
@@ -195,20 +198,29 @@ def example_protein_flop():
     print()
     
     # Compute persistent homology using RMSD
+    # Limit max_filtration for efficiency
     print("Computing persistent homology (using RMSD distance)...")
+    print("  (This may take a few minutes...)")
+    max_filt_folded = np.percentile(rmsd_folded[rmsd_folded > 0], 90)
+    max_filt_unfolded = np.percentile(rmsd_unfolded[rmsd_unfolded > 0], 90)
+    
     tda_folded = compute_persistent_homology(
         points_folded,
         distance_matrix=rmsd_folded,
         max_dim=2,
-        metric='precomputed'
+        metric='precomputed',
+        max_filtration=max_filt_folded
     )
+    print("  ✓ Folded state completed")
     
     tda_unfolded = compute_persistent_homology(
         points_unfolded,
         distance_matrix=rmsd_unfolded,
         max_dim=2,
-        metric='precomputed'
+        metric='precomputed',
+        max_filtration=max_filt_unfolded
     )
+    print("  ✓ Unfolded state completed")
     
     # Compare statistics
     print("\nPersistence Statistics Comparison:")
