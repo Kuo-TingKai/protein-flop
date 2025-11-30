@@ -37,8 +37,11 @@ ENV/
 output/
 results/
 *.png
-*.pdf
 *.svg
+# Allow PDF files in root directory (academic papers)
+# But exclude PDFs in output directories
+output/**/*.pdf
+results/**/*.pdf
 
 # Data files
 *.xtc
