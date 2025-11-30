@@ -34,10 +34,16 @@ ENV/
 *~
 
 # Output files
-output/
 results/
+# Allow output/ directory (analysis results and visualizations)
+# output/ directory is tracked - use ! to negate the pattern
+!output/
+!output/**
+# Exclude PNG/SVG in root and results directory, but allow in output/
 *.png
 *.svg
+results/**/*.png
+results/**/*.svg
 # Allow PDF files in root directory (academic papers)
 # But exclude PDFs in output directories
 output/**/*.pdf
