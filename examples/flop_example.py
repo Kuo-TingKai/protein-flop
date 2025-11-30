@@ -13,8 +13,10 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Add parent directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+# Add parent directory to path (so we can import from src)
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
 from src.flop_computation import (
     sample_atiyah_flop_before,
@@ -23,12 +25,18 @@ from src.flop_computation import (
     protein_flop_analogy_unfolded,
     compute_flop_difference
 )
-from src.tda_computation import compute_persistent_homology, compute_persistence_statistics
+from src.tda_computation import (
+    compute_persistent_homology,
+    compute_persistence_statistics
+)
 from src.visualization import (
     plot_persistence_diagram,
     compare_persistence_diagrams_plot
 )
-from src.data_processing import flatten_coordinates, compute_rmsd_matrix
+from src.data_processing import (
+    flatten_coordinates,
+    compute_rmsd_matrix
+)
 
 
 def example_atiyah_flop():

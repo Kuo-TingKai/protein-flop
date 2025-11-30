@@ -8,8 +8,8 @@ import numpy as np
 import sys
 import os
 
-# Add src directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+# Add parent directory to path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.data_processing import (
     generate_synthetic_conformation_data,
