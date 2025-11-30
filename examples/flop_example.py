@@ -12,6 +12,7 @@ import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.spatial.distance import pdist, squareform
 
 # Add parent directory to path (so we can import from src)
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -49,13 +50,21 @@ def example_atiyah_flop():
     print()
     
     # Sample points before and after Flop
+    # Use fewer samples for faster computation (TDA is computationally expensive)
+    n_samples = 300  # Reduced from 1000 for faster computation
     print("Sampling points from X~ (before Flop)...")
-    points_before = sample_atiyah_flop_before(n_samples=1000, radius=1.0, noise_level=0.05)
-    print(f"  Sampled {points_before.shape[0]} points in {points_before.shape[1]}D space")
+    points_before = sample_atiyah_flop_before(
+        n_samples=n_samples, radius=1.0, noise_level=0.05
+    )
+    print(f"  Sampled {points_before.shape[0]} points in "
+          f"{points_before.shape[1]}D space")
     
     print("Sampling points from X~' (after Flop)...")
-    points_after = sample_atiyah_flop_after(n_samples=1000, radius=1.0, noise_level=0.05)
-    print(f"  Sampled {points_after.shape[0]} points in {points_after.shape[1]}D space")
+    points_after = sample_atiyah_flop_after(
+        n_samples=n_samples, radius=1.0, noise_level=0.05
+    )
+    print(f"  Sampled {points_after.shape[0]} points in "
+          f"{points_after.shape[1]}D space")
     print()
     
     # Compute geometric differences
@@ -68,19 +77,35 @@ def example_atiyah_flop():
     print()
     
     # Compute persistent homology
+    # Pre-compute distance matrices and limit filtration for speed
     print("Computing persistent homology for X~ (before Flop)...")
+    print("  (This may take a minute for 300 points in 6D space...)")
+    from scipy.spatial.distance import pdist, squareform
+    dist_before = squareform(pdist(points_before, metric='euclidean'))
+    max_dist_before = np.percentile(dist_before[dist_before > 0], 90)
+    
     tda_before = compute_persistent_homology(
         points_before,
+        distance_matrix=dist_before,
         max_dim=2,
-        metric='euclidean'
+        metric='precomputed',
+        max_filtration=max_dist_before
     )
+    print("  ✓ Completed")
     
     print("Computing persistent homology for X~' (after Flop)...")
+    print("  (This may take a minute for 300 points in 6D space...)")
+    dist_after = squareform(pdist(points_after, metric='euclidean'))
+    max_dist_after = np.percentile(dist_after[dist_after > 0], 90)
+    
     tda_after = compute_persistent_homology(
         points_after,
+        distance_matrix=dist_after,
         max_dim=2,
-        metric='euclidean'
+        metric='precomputed',
+        max_filtration=max_dist_after
     )
+    print("  ✓ Completed")
     
     # Compare persistence statistics
     print("\nPersistence Statistics Comparison:")
