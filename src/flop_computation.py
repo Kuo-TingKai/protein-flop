@@ -48,7 +48,10 @@ def sample_atiyah_flop_before(n_samples: int = 1000,
         # Map to the resolution X~ near the singularity
         # The exceptional curve is at the origin in the base, but extends in P^1
         # We represent this as a small sphere around the origin
-        point = radius * 0.1 * u + np.random.randn(6) * noise_level * radius
+        # Extend 3D vector to 6D by padding with zeros (or small values)
+        u_6d = np.concatenate([u, np.zeros(3)])
+        point = (radius * 0.1 * u_6d +
+                 np.random.randn(6) * noise_level * radius)
         points.append(point)
     
     # Sample regular points near the singularity (satisfying xy = zw)
@@ -112,8 +115,11 @@ def sample_atiyah_flop_after(n_samples: int = 1000,
                              [0, 0, 0, 0, 1, 0],
                              [0, 0, 0, 0, 0, 1]])
         
-        point_base = radius * 0.1 * np.concatenate([u, u[:3]])  # 6D point
-        point = rotation @ point_base + np.random.randn(6) * noise_level * radius
+        # Extend 3D vector to 6D
+        u_6d = np.concatenate([u, np.zeros(3)])
+        point_base = radius * 0.1 * u_6d
+        point = (rotation @ point_base +
+                 np.random.randn(6) * noise_level * radius)
         points.append(point)
     
     # Sample regular points (satisfying xy = zw, but with different parameterization)
